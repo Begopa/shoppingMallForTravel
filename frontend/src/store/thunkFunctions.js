@@ -14,3 +14,17 @@ export const registerUser = createAsyncThunk(
     }
   },
 );
+
+export const loginUser = createAsyncThunk(
+  "user/loginUser",
+  async (userData, thunkAPI) => {
+    try {
+      const response = await axiosInstance.post(`/users/login`, userData);
+
+      return response.data;
+    } catch (error) {
+      console.log("registerUser Error", error);
+      return thunkAPI.rejectWithValue(error.response.data || error.message);
+    }
+  },
+);

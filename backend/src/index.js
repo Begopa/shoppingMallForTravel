@@ -19,7 +19,8 @@ mongoose
     console.log(err);
   });
 app.get("/", (req, res) => {
-  res.send("Hello, world!");
+  throw new Error("it is an error");
+  //res.send("Hello, world!");
 });
 app.post("/", (req, res) => {
   console.log(req.body);
@@ -27,6 +28,11 @@ app.post("/", (req, res) => {
 });
 
 app.use("/users", require("./routes/users"));
+
+app.use((error, req, res, next) => {
+  res.status(error.status || 500);
+  res.send(error.message || "서버에서 에러가 났습니다.");
+});
 
 app.use(express.static(path.join(__dirname, "../uploads")));
 

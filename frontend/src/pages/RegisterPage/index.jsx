@@ -14,7 +14,7 @@ const RegisterPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const onSubmit = ({ email, password, name }) => {
+  const onSubmit = async ({ email, password, name }) => {
     const body = {
       email,
       password,
@@ -22,9 +22,14 @@ const RegisterPage = () => {
       image: `https://via.placeholder.com/600x400?text=no+user+image`,
     };
 
-    dispatch(registerUser(body));
-    reset();
-    navigate("/login");
+    const responseResult = await dispatch(registerUser(body));
+    // 회원가입 성공시 로그인 페이지로 이동
+    if (responseResult.payload === "OK") {
+      navigate("/login");
+    } else {
+      // 회원가입 실패시 내용 지우기
+      reset();
+    }
   };
 
   const userEmail = {
@@ -112,8 +117,7 @@ const RegisterPage = () => {
             </button>
           </div>
           <p className="mt-8 text-xs font-light text-center text-gray-700">
-            {" "}
-            아이디가 있다면?
+            아이디가 있다면?{" "}
             <a href="/login" className="font-medium hover:underline">
               로그인
             </a>

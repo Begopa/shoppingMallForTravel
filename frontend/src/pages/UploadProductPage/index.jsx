@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import axiosInstance from "../../utils/axios.js";
+import { useNavigate } from "react-router-dom";
 
 const continents = [
   { key: 1, value: "Africa" },
@@ -11,19 +14,55 @@ const continents = [
 ];
 
 const UploadProductPage = () => {
+  const [product, setProduct] = useState({
+    title: "",
+    description: "",
+    price: 0,
+    continents: 1,
+    images: [],
+  });
+
+  const userData = useSelector((state) => state.user?.userData);
+  const navigate = useNavigate();
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setProduct((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const body = {
+      writer: userData.id,
+      ...product,
+    };
+
+    try {
+      await axiosInstance.post("/products", body);
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <section>
       <div className="text-center m-7">
         <h1>예상 상품 업로드</h1>
       </div>
 
-      <form className="mt-6">
+      <form className="mt-6" onSubmit={handleSubmit}>
         <div className="mt-4">
           <label htmlFor="title">이름</label>
           <input
             className="w-full px-4 py-2 bg-white border rounded-md"
             name="title"
             id="title"
+            onChange={handleChange}
+            value={product.title}
           />
         </div>
 
@@ -33,6 +72,8 @@ const UploadProductPage = () => {
             className="w-full px-4 py-2 bg-white border rounded-md"
             name="description"
             id="description"
+            onChange={handleChange}
+            value={product.description}
           />
         </div>
 
@@ -43,6 +84,8 @@ const UploadProductPage = () => {
             type="number"
             name="price"
             id="price"
+            onChange={handleChange}
+            value={product.price}
           />
         </div>
 
@@ -52,6 +95,8 @@ const UploadProductPage = () => {
             className="w-full px-4 mt-2 bg-white border rounded-md"
             name="continents"
             id="continents"
+            onChange={handleChange}
+            value={product.continents}
           >
             {continents.map((item) => (
               <option key={item.key} value={item.key}>
@@ -62,7 +107,10 @@ const UploadProductPage = () => {
         </div>
 
         <div className="mt-2">
-          <button className="w-full px-4 text-white bg-black rounded-md hover:bg-gray-700 py-2">
+          <button
+            type="submit"
+            className="w-full px-4 text-white bg-black rounded-md hover:bg-gray-700 py-2"
+          >
             생성하기
           </button>
         </div>

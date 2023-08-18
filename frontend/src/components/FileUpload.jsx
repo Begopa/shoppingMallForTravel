@@ -1,4 +1,3 @@
-import React from "react";
 import Dropzone from "react-dropzone";
 import axiosInstance from "../utils/axios.js";
 

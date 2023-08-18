@@ -4,7 +4,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
 
-router.get("/auth", auth, async (req, res, next) => {
+router.get("/auth", auth, async (req, res) => {
   return res.status(200).json({
     id: req.user._id,
     email: req.user.email,

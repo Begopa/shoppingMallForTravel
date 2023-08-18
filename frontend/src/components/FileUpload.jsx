@@ -24,6 +24,15 @@ const FileUpload = ({ onImageChange, images }) => {
     }
   };
 
+  const handleImageDelete = async (image) => {
+    try {
+      await axiosInstance.delete(`/products/image?imageName=${image}`);
+      handleDelete(image); // 이미지 목록을 업데이트하는 함수 호출
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleDelete = (image) => {
     const currentIndex = images.indexOf(image);
     let newImages = [...images];
@@ -45,7 +54,7 @@ const FileUpload = ({ onImageChange, images }) => {
       </Dropzone>
       <div className="flex-grow h-[300px] border flex items-center justify-center overflow-x-scroll overflow-y-hidden">
         {images.map((image) => (
-          <div key={image} onClick={() => handleDelete(image)}>
+          <div key={image} onClick={() => handleImageDelete(image)}>
             <img
               className="min-w-[300px] h-[300px]"
               src={`${import.meta.env.VITE_SERVER_URL}/${image}`}

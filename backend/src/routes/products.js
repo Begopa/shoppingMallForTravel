@@ -57,4 +57,14 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
+router.get("/", async (req, res, next) => {
+  try {
+    const products = await Product.find().populate("writer");
+
+    return res.status(200).json({ products });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

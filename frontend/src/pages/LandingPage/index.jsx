@@ -12,6 +12,31 @@ const LandingPage = () => {
   const [hasMore, setHasMore] = useState(false);
   const [filters, setFilters] = useState({ continents: [], price: [] });
 
+  useEffect(() => {
+    fetchProducts(skip, limit);
+  }, []);
+
+  const fetchProducts = async ({
+    skip,
+    limit,
+    loadMore = false,
+    filters = {},
+    searchTerm = "",
+  }) => {
+    const params = {
+      skip,
+      limit,
+      filters,
+      searchTerm,
+    };
+    try {
+      const response = await axiosInstance.get("/products", { params });
+
+      setProducts(response.data.products);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <section>
       <div className="text-center m-7">

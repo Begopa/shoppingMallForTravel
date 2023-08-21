@@ -74,8 +74,16 @@ router.get("/", async (req, res, next) => {
     }
   }
 
+  // if (term) {
+  //   findArgs["$text"] = { $search: term };
+  // }
   if (term) {
-    findArgs["$text"] = { $search: term };
+    findArgs = {
+      $or: [
+        { title: { $regex: term, $options: "i" } }, // "i" 플래그는 대소문자 구분 없이 검색
+        { description: { $regex: term, $options: "i" } },
+      ],
+    };
   }
 
   console.log(findArgs);

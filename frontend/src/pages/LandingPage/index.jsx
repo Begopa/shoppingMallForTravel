@@ -5,6 +5,7 @@ import SearchInput from "./Sections/SearchInput.jsx";
 import CardItem from "./Sections/CardItem.jsx";
 import axiosInstance from "../../utils/axios.js";
 import { continents, prices } from "../../utils/filterData";
+import { useDebounce } from "../../hooks/useDebounce.js";
 
 const LandingPage = () => {
   const limit = 4;
@@ -16,10 +17,23 @@ const LandingPage = () => {
     continents: [],
     price: [],
   });
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     fetchProducts({ skip, limit });
   }, []);
+
+  useEffect(() => {
+    const body = {
+      skip: 0,
+      limit,
+      filters,
+      searchTerm: debouncedSearchTerm,
+    };
+    if (debouncedSearchTerm) {
+      fetchProducts(body);
+    }
+  }, [debouncedSearchTerm]);
 
   const fetchProducts = async ({
     skip,
@@ -96,15 +110,15 @@ const LandingPage = () => {
   };
 
   const handleSearchTerm = (event) => {
-    const body = {
-      skip: 0,
-      limit,
-      filters,
-      searchTerm: event.target.value,
-    };
+    // const body = {
+    //   skip: 0,
+    //   limit,
+    //   filters,
+    //   searchTerm: event.target.value,
+    // };
     setSkip(0);
     setSearchTerm(event.target.value);
-    fetchProducts(body);
+    //fetchProducts(body);
   };
 
   return (

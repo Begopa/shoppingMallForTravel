@@ -7,13 +7,17 @@ import axiosInstance from "../../utils/axios.js";
 
 const LandingPage = () => {
   const limit = 4;
+  const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [skip, setSkip] = useState(0);
   const [hasMore, setHasMore] = useState(false);
-  const [filters, setFilters] = useState({ continents: [], price: [] });
+  const [filters, setFilters] = useState({
+    continents: [],
+    price: [],
+  });
 
   useEffect(() => {
-    fetchProducts(skip, limit);
+    fetchProducts({ skip, limit });
   }, []);
 
   const fetchProducts = async ({
@@ -32,11 +36,28 @@ const LandingPage = () => {
     try {
       const response = await axiosInstance.get("/products", { params });
 
-      setProducts(response.data.products);
+      if (loadMore) {
+        setProducts([...products, ...response.data.products]);
+      } else {
+        setProducts(response.data.products);
+      }
+      setHasMore(response.data.hasMore);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handleLoadMore = () => {
+    const body = {
+      skip: skip + limit,
+      limit,
+      loadMore: true,
+      filters,
+    };
+    fetchProducts(body);
+    setSkip(skip + limit);
+  };
+
   return (
     <section>
       <div className="text-center m-7">
@@ -67,7 +88,10 @@ const LandingPage = () => {
       {/* LoadMore */}
       {hasMore && (
         <div className="flex justify-center mt-5">
-          <button className="px-4 py-2 mt-5 text-white bg-black rounded-md hover:bg-gray-500">
+          <button
+            onClick={handleLoadMore}
+            className="px-4 py-2 mt-5 text-white bg-black rounded-md hover:bg-gray-500"
+          >
             더 보기
           </button>
         </div>

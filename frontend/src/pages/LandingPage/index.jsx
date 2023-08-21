@@ -4,6 +4,7 @@ import CheckBox from "./Sections/CheckBox.jsx";
 import SearchInput from "./Sections/SearchInput.jsx";
 import CardItem from "./Sections/CardItem.jsx";
 import axiosInstance from "../../utils/axios.js";
+import { continents, prices } from "../../utils/filterData";
 
 const LandingPage = () => {
   const limit = 4;
@@ -43,7 +44,7 @@ const LandingPage = () => {
       }
       setHasMore(response.data.hasMore);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -58,6 +59,25 @@ const LandingPage = () => {
     setSkip(skip + limit);
   };
 
+  const handleFilters = (newFilteredData, category) => {
+    const newFilters = { ...filters };
+    newFilters[category] = newFilteredData;
+
+    showFilteredResults(newFilters);
+    setFilters(newFilters);
+  };
+
+  const showFilteredResults = (filters) => {
+    const body = {
+      skip: 0,
+      limit,
+      filters,
+    };
+
+    fetchProducts(body);
+    setSkip(0);
+  };
+
   return (
     <section>
       <div className="text-center m-7">
@@ -66,7 +86,11 @@ const LandingPage = () => {
       {/* Filter */}
       <div className="flex gap-3">
         <div className="w-1/2">
-          <CheckBox />
+          <CheckBox
+            continents={continents}
+            checkedContinents={filters.continents}
+            onFilters={(filters) => handleFilters(filters, "continents")}
+          />
         </div>
         <div className="w-1/2">
           <RadioBox />

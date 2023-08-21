@@ -7,3 +7,5 @@ uploads/*
 
 # uploads 폴더 자체는 포함
 !uploads/
+
+!uploads/austraila3.jpg

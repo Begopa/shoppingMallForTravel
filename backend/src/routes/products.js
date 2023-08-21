@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const Product = require("../models/Product");
 const auth = require("../middleware/auth");
+const Product = require("../models/Product");
 const multer = require("multer");
-const fs = require("fs");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -16,7 +15,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage }).single("file");
 
-router.post("/image", auth, async (req, res) => {
+router.post("/image", auth, async (req, res, next) => {
   upload(req, res, (err) => {
     if (err) {
       return req.status(500).send(err);
@@ -25,44 +24,39 @@ router.post("/image", auth, async (req, res) => {
   });
 });
 
-router.delete("/image", auth, async (req, res) => {
-  const imageName = req.query.imageName;
+router.get("/:id", async (req, res, next) => {
+  const type = req.query.type;
+  let productIds = req.params.id;
 
-  if (imageName) {
-    const imagePath = `uploads/${imageName}`;
-    if (fs.existsSync(imagePath)) {
-      try {
-        fs.unlinkSync(imagePath);
-        console.log("Image deleted:", imageName);
-        return res.sendStatus(204);
-      } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "Failed to delete image." });
-      }
-    } else {
-      return res.status(404).json({ error: "Image not found." });
-    }
-  } else {
-    return res.status(400).json({ error: "Image name not provided." });
+  if (type === "array") {
+    // id=32423423423,345345345345345,345345345
+    // productIds = ['32423423423', '345345345345345345', '345345345345345']
+
+    let ids = productIds.split(",");
+    productIds = ids.map((item) => {
+      return item;
+    });
   }
-});
 
-router.post("/", auth, async (req, res) => {
+  // productId를 이용해서 DB에서 productId와 같은 상품의 정보를 가져옵니다.
   try {
-    const product = new Product(req.body);
-    product.save();
-    return res.sendStatus(201);
+    const product = await Product.find({ _id: { $in: productIds } }).populate(
+      "writer",
+    );
+
+    return res.status(200).send(product);
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 });
 
 router.get("/", async (req, res, next) => {
-  // asc 오름차순, desc 내림차순
+  // asc 오름차순  , desc 내림차순
   const order = req.query.order ? req.query.order : "desc";
   const sortBy = req.query.sortBy ? req.query.sortBy : "_id";
   const limit = req.query.limit ? Number(req.query.limit) : 20;
   const skip = req.query.skip ? Number(req.query.skip) : 0;
+  const term = req.query.searchTerm;
 
   let findArgs = {};
   for (let key in req.query.filters) {
@@ -79,6 +73,11 @@ router.get("/", async (req, res, next) => {
       }
     }
   }
+
+  if (term) {
+    findArgs["$text"] = { $search: term };
+  }
+
   console.log(findArgs);
 
   try {
@@ -89,9 +88,22 @@ router.get("/", async (req, res, next) => {
       .limit(limit);
 
     const productsTotal = await Product.countDocuments(findArgs);
-    const hasMore = skip + limit < productsTotal;
+    const hasMore = skip + limit < productsTotal ? true : false;
 
-    return res.status(200).json({ products, hasMore });
+    return res.status(200).json({
+      products,
+      hasMore,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/", auth, async (req, res, next) => {
+  try {
+    const product = new Product(req.body);
+    product.save();
+    return res.sendStatus(201);
   } catch (error) {
     next(error);
   }

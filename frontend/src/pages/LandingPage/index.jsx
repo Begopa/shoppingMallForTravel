@@ -54,6 +54,7 @@ const LandingPage = () => {
       limit,
       loadMore: true,
       filters,
+      searchTerm,
     };
     fetchProducts(body);
     setSkip(skip + limit);
@@ -87,10 +88,23 @@ const LandingPage = () => {
       skip: 0,
       limit,
       filters,
+      searchTerm,
     };
 
     fetchProducts(body);
     setSkip(0);
+  };
+
+  const handleSearchTerm = (event) => {
+    const body = {
+      skip: 0,
+      limit,
+      filters,
+      searchTerm: event.target.value,
+    };
+    setSkip(0);
+    setSearchTerm(event.target.value);
+    fetchProducts(body);
   };
 
   return (
@@ -118,7 +132,7 @@ const LandingPage = () => {
 
       {/* Search */}
       <div className="flex justify-end mb-3">
-        <SearchInput />
+        <SearchInput searchTerm={searchTerm} onSearch={handleSearchTerm} />
       </div>
 
       {/* Card */}

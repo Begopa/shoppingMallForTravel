@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCartItems } from "../../store/thunkFunctions.js";
+import { getCartItems, removeCartItem } from "../../store/thunkFunctions.js";
 import CartTable from "./Sections/CartTable.jsx";
 
 const CartPage = () => {
@@ -34,7 +34,9 @@ const CartPage = () => {
     setTotal(total);
   };
 
-  const handleRemoveCartItem = () => {};
+  const handleRemoveCartItem = (productId) => {
+    dispatch(removeCartItem(productId));
+  };
 
   return (
     <section>

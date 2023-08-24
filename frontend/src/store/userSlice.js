@@ -5,6 +5,7 @@ import {
   getCartItems,
   loginUser,
   logoutUser,
+  payProducts,
   registerUser,
   removeCartItem,
 } from "./thunkFunctions.js";
@@ -39,8 +40,9 @@ const userSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-        toast.info(action.payload);
+        toast.error(action.payload);
       })
+
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -51,9 +53,9 @@ const userSlice = createSlice({
         localStorage.setItem("accessToken", action.payload.accessToken);
       })
       .addCase(loginUser.rejected, (state, action) => {
-        state.isLoading = true;
+        state.isLoading = false;
         state.error = action.payload;
-        toast.info(action.payload);
+        toast.error(action.payload);
       })
       .addCase(authUser.pending, (state) => {
         state.isLoading = true;
@@ -64,11 +66,13 @@ const userSlice = createSlice({
         state.isAuth = true;
       })
       .addCase(authUser.rejected, (state, action) => {
-        state.isLoading = true;
+        state.isLoading = false;
         state.error = action.payload;
+        state.userData = initialState.userData;
         state.isAuth = false;
         localStorage.removeItem("accessToken");
       })
+
       .addCase(logoutUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -118,9 +122,24 @@ const userSlice = createSlice({
         state.isLoading = false;
         state.cartDetail = action.payload.productInfo;
         state.userData.cart = action.payload.cart;
-        toast.info("장바구니에서 제거되었습니다.");
+        toast.info("상품이 장바구니에서 제거되었습니다.");
       })
       .addCase(removeCartItem.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+        toast.error(action.payload);
+      })
+
+      .addCase(payProducts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(payProducts.fulfilled, (state) => {
+        state.isLoading = false;
+        state.cartDetail = [];
+        state.userData.cart = [];
+        toast.info("성공적으로 상품을 구매했습니다.");
+      })
+      .addCase(payProducts.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
         toast.error(action.payload);

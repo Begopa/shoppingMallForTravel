@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCartItems, removeCartItem } from "../../store/thunkFunctions.js";
-import CartTable from "./Sections/CartTable.jsx";
+import {
+  getCartItems,
+  payProducts,
+  removeCartItem,
+} from "../../store/thunkFunctions";
+import CartTable from "./Sections/CartTable";
+import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
   const userData = useSelector((state) => state.user?.userData);
@@ -16,10 +21,12 @@ const CartPage = () => {
       userData.cart.forEach((item) => {
         cartItemIds.push(item.id);
       });
+
       const body = {
         cartItemIds,
         userCart: userData.cart,
       };
+
       dispatch(getCartItems(body));
     }
   }, [dispatch, userData]);
@@ -52,11 +59,13 @@ const CartPage = () => {
           />
           <div className="mt-10">
             <p>
-              <span className="font-bold">합계: </span>
+              <span className="font-bold">합계:</span>
               {total} 원
             </p>
-
-            <button className="text-white bg-black hover:bg-gray-500 rounded-md px-4 mt-5">
+            <button
+              className="px-4 py-2 mt-5 text-white bg-black rounded-md hover:bg-gray-500"
+              onClick={handlePaymentClick}
+            >
               결제하기
             </button>
           </div>
